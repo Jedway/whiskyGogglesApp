@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Whisky Goggles Identifier</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/output.css') }}">
+</head>
+<body class="bg-gray-100 font-sans min-h-screen flex flex-col">
+
+    <header class="bg-gray-800 text-white p-4 shadow-md">
+        <div class="container mx-auto">
+            <h1 class="text-2xl font-bold">Whisky Bottle Identifier</h1>
+        </div>
+    </header>
+
+    <main class="container mx-auto p-4 flex-grow">
+        {% if init_error %}
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+            <strong class="font-bold">Server Error!</strong>
+            <span class="block sm:inline">The identification module failed to initialize. Please check the server logs.</span>
+        </div>
+        {% endif %}
+
+        <div class="bg-white p-6 rounded-lg shadow-lg mb-6">
+            <form id="upload-form" enctype="multipart/form-data">
+                <label for="bottle-input" class="block text-gray-700 text-sm font-bold mb-2">
+                    Upload Whisky Label Image:
+                </label>
+                <input type="file" id="bottle-input" name="bottle_image" accept="image/*" required
+                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mb-4 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                <button type="submit" id="submit-button" {% if init_error %}disabled{% endif %}
+                        class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline disabled:opacity-50 disabled:cursor-not-allowed">
+                    Identify Bottle
+                </button>
+            </form>
+        </div>
+
+        <div id="loading-indicator" class="text-center py-4" style="display: none;">
+            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-indigo-600 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            <span class="text-indigo-600 font-semibold">Identifying... Please Wait</span>
+        </div>
+
+        <div id="results-area" class="mt-6">
+            </div>
+
+    </main>
+
+    <footer class="bg-gray-700 text-white text-center p-3 mt-auto">
+        <div class="container mx-auto">
+            &copy; {{ current_year }} Whisky Goggles </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

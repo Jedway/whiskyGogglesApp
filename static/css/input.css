@@ -1,0 +1,10 @@
+/* static/css/input.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Optional: Add custom base styles or components here */
+body {
+    @apply bg-gray-100 font-sans;
+}
+
