@@ -48,3 +48,9 @@ static/css/main.css
 *.db
 *.sqlite3
 
+# Project specific
+data/bottle_images/*
+!data/bottle_images/.gitkeep
+bottle_features.pkl
+*.log
+.env
