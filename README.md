@@ -1,6 +1,5 @@
 ## `README.md` Content
 
-````markdown
 # Whisky Goggles - Bottle Recognition App
 
 A computer vision application that identifies whisky bottles from images using OpenCV feature detection.
