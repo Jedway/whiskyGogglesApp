@@ -4,6 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Whisky Goggles Identifier</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#1F2937">
+    <meta name="description" content="Identify whisky bottles using computer vision">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="WhiskyGoggles">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="196x196" href="{{ url_for('static', filename='icons/favicon-196.png') }}">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/icon-192x192.png') }}">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    
     <link rel="stylesheet" href="{{ url_for('static', filename='css/output.css') }}">
     <style>
         .logo-container {
@@ -135,14 +150,21 @@
             <header class="bg-gray-800 dark:bg-gray-900 text-white p-4 shadow-md">
                 <div class="container mx-auto flex justify-between items-center">
                     <h1 class="text-2xl font-bold">Whisky Bottle Identifier</h1>
-                    <button id="theme-toggle" class="theme-toggle" title="Toggle dark mode">
-                        <svg id="sun-icon" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"/>
-                        </svg>
-                        <svg id="moon-icon" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/>
-                        </svg>
-                    </button>
+                    <div class="flex items-center gap-4">
+                        <button id="theme-toggle" class="theme-toggle" title="Toggle dark mode">
+                            <svg id="sun-icon" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"/>
+                            </svg>
+                            <svg id="moon-icon" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/>
+                            </svg>
+                        </button>
+                        <button id="history-toggle" class="theme-toggle" title="View History">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             </header>
 
@@ -159,8 +181,24 @@
                         <label for="bottle-input" class="block text-gray-700 dark:text-gray-200 text-sm font-bold mb-2">
                             Upload Whisky Label Image:
                         </label>
-                        <input type="file" id="bottle-input" name="bottle_image" accept="image/*" required
-                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 dark:bg-gray-700 leading-tight focus:outline-none focus:shadow-outline mb-4 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 dark:file:bg-indigo-900 dark:file:text-indigo-200 hover:file:bg-indigo-100 dark:hover:file:bg-indigo-800">
+                        <div class="flex gap-4 mb-4">
+                            <div class="flex-1">
+                                <input type="file" id="bottle-input" name="bottle_image" accept="image/*" required
+                                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 dark:bg-gray-700 leading-tight focus:outline-none focus:shadow-outline file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 dark:file:bg-indigo-900 dark:file:text-indigo-200 hover:file:bg-indigo-100 dark:hover:file:bg-indigo-800">
+                            </div>
+                            <button type="button" id="camera-button" 
+                                    class="flex items-center gap-2 shadow-md hover:shadow-lg active:shadow-sm bg-white dark:bg-gray-700 border rounded py-2 px-4 text-gray-700 dark:text-gray-200 leading-tight focus:outline-none focus:shadow-outline hover:bg-gray-50 dark:hover:bg-gray-600 transition-all duration-200 transform active:translate-y-0.5 hover:-translate-y-0.5">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                          d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z">
+                                    </path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                          d="M15 13a3 3 0 11-6 0 3 3 0 016 0z">
+                                    </path>
+                                </svg>
+                                <span class="font-bold">Use Camera</span>
+                            </button>
+                        </div>
                         <div class="flex justify-center gap-4">
                             <button type="submit" id="submit-button" {% if init_error %}disabled{% endif %}
                                     class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline disabled:opacity-50 disabled:cursor-not-allowed transform transition-all duration-200 shadow-md hover:shadow-lg active:shadow-sm active:translate-y-0.5 hover:-translate-y-0.5">
@@ -172,6 +210,29 @@
                             </button>
                         </div>
                     </form>
+                </div>
+
+                <!-- Camera Modal -->
+                <div id="camera-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl max-w-2xl w-full mx-4">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Take Photo</h3>
+                            <button id="close-camera" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="relative aspect-video mb-4">
+                            <video id="camera-preview" class="w-full h-full object-cover rounded" autoplay playsinline></video>
+                            <canvas id="camera-canvas" class="hidden"></canvas>
+                        </div>
+                        <div class="flex justify-center">
+                            <button id="take-photo" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transform transition-all duration-200 shadow-md hover:shadow-lg active:shadow-sm active:translate-y-0.5 hover:-translate-y-0.5">
+                                Take Photo
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 <div id="loading-indicator" class="text-center py-4" style="display: none;">
@@ -193,6 +254,26 @@
             </div>
         </footer>
     </div>
+
+    <!-- History Sidebar -->
+    <div id="history-sidebar" class="fixed inset-y-0 right-0 w-80 bg-white dark:bg-gray-800 shadow-lg transform translate-x-full transition-transform duration-300 ease-in-out z-50">
+        <div class="h-full flex flex-col">
+            <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                <h2 class="text-xl font-bold text-gray-800 dark:text-gray-200">Analysis History</h2>
+                <button id="close-history" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div id="history-list" class="flex-1 overflow-y-auto p-4">
+                <!-- History items will be dynamically added here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- History Overlay -->
+    <div id="history-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden"></div>
 
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script>
@@ -249,6 +330,150 @@
         themeToggle.addEventListener('click', (e) => {
             handleTransition(e, !html.classList.contains('dark'));
         });
+
+        // PWA Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/static/js/service-worker.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful');
+                    })
+                    .catch(err => {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+
+        // Camera functionality
+        const cameraButton = document.getElementById('camera-button');
+        const cameraModal = document.getElementById('camera-modal');
+        const closeCamera = document.getElementById('close-camera');
+        const cameraPreview = document.getElementById('camera-preview');
+        const cameraCanvas = document.getElementById('camera-canvas');
+        const takePhotoButton = document.getElementById('take-photo');
+        let stream = null;
+
+        async function startCamera() {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { 
+                        facingMode: 'environment',
+                        width: { ideal: 1920 },
+                        height: { ideal: 1080 }
+                    } 
+                });
+                cameraPreview.srcObject = stream;
+                cameraModal.style.display = 'flex';
+            } catch (err) {
+                console.error('Error accessing camera:', err);
+                alert('Could not access camera. Please ensure you have granted camera permissions.');
+            }
+        }
+
+        function stopCamera() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+            cameraPreview.srcObject = null;
+            cameraModal.style.display = 'none';
+        }
+
+        function takePhoto() {
+            const context = cameraCanvas.getContext('2d');
+            cameraCanvas.width = cameraPreview.videoWidth;
+            cameraCanvas.height = cameraPreview.videoHeight;
+            context.drawImage(cameraPreview, 0, 0, cameraCanvas.width, cameraCanvas.height);
+            
+            // Convert canvas to blob
+            cameraCanvas.toBlob(async (blob) => {
+                const file = new File([blob], "camera-photo.jpg", { type: "image/jpeg" });
+                
+                // Create FormData and append file
+                const formData = new FormData();
+                formData.append('bottle_image', file);
+                
+                // Show loading indicator
+                document.getElementById('loading-indicator').style.display = 'block';
+                
+                try {
+                    const response = await fetch('/identify', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    const result = await response.json();
+                    handleIdentificationResult(result);
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('An error occurred while processing the image.');
+                } finally {
+                    document.getElementById('loading-indicator').style.display = 'none';
+                    stopCamera();
+                }
+            }, 'image/jpeg', 0.95);
+        }
+
+        cameraButton.addEventListener('click', startCamera);
+        closeCamera.addEventListener('click', stopCamera);
+        takePhotoButton.addEventListener('click', takePhoto);
+
+        // Clean up camera when modal is closed
+        window.addEventListener('beforeunload', stopCamera);
+
+        // History Management
+        const historyToggle = document.getElementById('history-toggle');
+        const historySidebar = document.getElementById('history-sidebar');
+        const closeHistory = document.getElementById('close-history');
+        const historyOverlay = document.getElementById('history-overlay');
+        const historyList = document.getElementById('history-list');
+        let analysisHistory = [];
+
+        function toggleHistory() {
+            historySidebar.classList.toggle('translate-x-full');
+            historyOverlay.classList.toggle('hidden');
+            document.body.classList.toggle('overflow-hidden');
+        }
+
+        function addToHistory(result) {
+            // Add the result to history
+            analysisHistory.unshift({
+                name: result.name || 'Unknown Bottle',
+                msrp: result.avg_msrp || 'N/A',
+                confidence: result.match_confidence || 0,
+                timestamp: new Date().toLocaleTimeString()
+            });
+
+            // Update the history UI
+            updateHistoryUI();
+        }
+
+        function updateHistoryUI() {
+            historyList.innerHTML = analysisHistory.map(item => `
+                <div class="mb-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg shadow">
+                    <div class="font-bold text-gray-800 dark:text-gray-200 mb-2">${item.name}</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">
+                        <div>Avg MSRP: $${typeof item.msrp === 'number' ? item.msrp.toFixed(2) : item.msrp}</div>
+                        <div>Match Confidence: ${typeof item.confidence === 'number' ? (item.confidence * 100).toFixed(1) : item.confidence}%</div>
+                        <div class="text-xs mt-1">${item.timestamp}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Event Listeners for History
+        historyToggle.addEventListener('click', toggleHistory);
+        closeHistory.addEventListener('click', toggleHistory);
+        historyOverlay.addEventListener('click', toggleHistory);
+
+        // Modify handleIdentificationResult to include history
+        const originalHandleIdentificationResult = window.handleIdentificationResult;
+        window.handleIdentificationResult = function(result) {
+            // Call the original handler
+            originalHandleIdentificationResult(result);
+            // Add to history
+            addToHistory(result);
+        };
     </script>
 </body>
 </html>

@@ -1,6 +1,6 @@
 # app.py (in project root)
 
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, make_response, send_from_directory
 import os
 import pandas as pd
 import sys
@@ -100,6 +100,17 @@ def identify_bottle_api():
                     app.logger.error(f"Error removing temp file {temp_path}: {e}")
 
     return jsonify({'success': False, 'error': 'Invalid file or upload error.'}), 400
+
+@app.route('/static/js/service-worker.js')
+def serve_service_worker():
+    response = make_response(send_from_directory('static/js', 'service-worker.js'))
+    response.headers['Content-Type'] = 'application/javascript'
+    response.headers['Service-Worker-Allowed'] = '/'
+    return response
+
+@app.route('/static/manifest.json')
+def serve_manifest():
+    return send_from_directory('static', 'manifest.json')
 
 # --- Main Execution Guard ---
 if __name__ == '__main__':
