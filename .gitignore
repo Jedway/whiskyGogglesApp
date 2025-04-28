@@ -49,8 +49,8 @@ static/css/main.css
 *.sqlite3
 
 # Project specific
-data/bottle_images/*
-!data/bottle_images/.gitkeep
+data/whisky_images/*
+!data/whisky_images/.gitkeep
 bottle_features.pkl
 *.log
 .env
