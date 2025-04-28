@@ -1,8 +1,9 @@
 pandas
-opencv-python
+opencv-python-headless
 numpy
 requests
 scikit-learn
-openpyxl #pandas needs this to read .xlsx files
+openpyxl
 Flask
 Werkzeug
+gunicorn

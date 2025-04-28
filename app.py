@@ -125,7 +125,6 @@ if __name__ == '__main__':
          print("Identification module initialized successfully.")
 
     print("Starting Flask development server...")
-    print("Access at: http://127.0.0.1:5000")
-    # Set debug=False for production
-    app.run(host='127.0.0.1', port=5000, debug=True)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=False)
     
