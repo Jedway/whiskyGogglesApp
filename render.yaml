@@ -3,9 +3,22 @@ services:
     name: whisky-goggles
     env: python
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app:app
+    startCommand: >-
+      gunicorn app:app 
+      --workers=4 
+      --threads=2 
+      --worker-class=gthread 
+      --worker-tmp-dir=/dev/shm 
+      --timeout=120 
+      --keep-alive=5 
+      --max-requests=1000 
+      --max-requests-jitter=50
     envVars:
       - key: PYTHON_VERSION
         value: 3.9.18
       - key: FLASK_ENV
-        value: production 
+        value: production
+      - key: WEB_CONCURRENCY  # Optional: Render can auto-scale workers
+        value: 4
+      - key: PYTHONUNBUFFERED  # Helps with logging
+        value: "true" 
