@@ -2,8 +2,8 @@
 
 // --- Get references to DOM elements ---
 const form = document.getElementById('upload-form');
-const resultsArea = document.getElementById('results');
-const loadingIndicator = document.getElementById('loading');
+const resultsArea = document.getElementById('results-area');
+const loadingIndicator = document.getElementById('loading-indicator');
 const fileInput = document.getElementById('bottle-input');
 const submitButton = document.getElementById('submit-button');
 const historyList = document.getElementById('history-list');
@@ -195,138 +195,117 @@ async function takePhoto() {
 }
 
 // --- Add event listener for form submission ---
-form.addEventListener('submit', async (event) => {
-    event.preventDefault(); // Prevent the default form submission behavior (page reload)
+if (form) {
+    form.addEventListener('submit', async (event) => {
+        event.preventDefault(); // Prevent the default form submission behavior (page reload)
 
-    // --- Basic Validation ---
-    if (!fileInput.files || fileInput.files.length === 0) {
-        displayError("Please select an image file first.");
-        return; // Stop if no file is selected
-    }
-
-    // --- UI Updates: Show Loading State ---
-    resultsArea.innerHTML = ''; // Clear any previous results or errors
-    loadingIndicator.style.display = 'block'; // Show the loading spinner/text
-    submitButton.disabled = true; // Disable the button to prevent multiple submissions
-    submitButton.textContent = 'Identifying...'; // Optional: Change button text
-
-    // --- Prepare Form Data for Sending ---
-    const formData = new FormData();
-    formData.append('bottle_image', fileInput.files[0]); // 'bottle_image' must match the name Flask expects
-
-    // --- Send Data to Backend API ---
-    try {
-        const response = await fetch('/identify', { // URL of your Flask API endpoint
-            method: 'POST',
-            body: formData,
-            // Note: 'Content-Type': 'multipart/form-data' header is usually set automatically by the browser when using FormData with fetch
-        });
-
-        // --- Process Backend Response ---
-        const contentType = response.headers.get("content-type");
-        // Check if the response is valid JSON
-        if (contentType && contentType.indexOf("application/json") !== -1) {
-            const result = await response.json(); // Parse the JSON response body
-
-            if (response.ok && result.success) {
-                // Call function to display successful results
-                displayResults(result.data);
-            } else {
-                // Call function to display error message from backend
-                displayError(result.error || 'An unknown error occurred while processing the image.');
-            }
-        } else {
-             // Handle cases where the server returns non-JSON (e.g., HTML error page)
-             const errorText = await response.text();
-             console.error("Received non-JSON response:", errorText);
-             displayError(`Server returned an unexpected response (Status: ${response.status}). Please check server logs.`);
+        // --- Basic Validation ---
+        if (!fileInput.files || fileInput.files.length === 0) {
+            displayError("Please select an image file first.");
+            return; // Stop if no file is selected
         }
-        
-    } catch (error) {
-        // --- Handle Network Errors ---
-        console.error('Fetch Error:', error);
-        displayError('Failed to connect to the identification server. Please check your network connection or contact support.');
-    } finally {
-        // --- UI Updates: Hide Loading State (always runs) ---
-        loadingIndicator.style.display = 'none'; // Hide the loading spinner/text
-        submitButton.disabled = false; // Re-enable the button
-        submitButton.textContent = 'Identify Bottle'; // Restore original button text
-        // Optional: Clear the file input after submission for better UX
-        // fileInput.value = '';
-    }
-});
+
+        // --- UI Updates: Show Loading State ---
+        if (resultsArea) resultsArea.innerHTML = ''; // Clear any previous results or errors
+        if (loadingIndicator) loadingIndicator.style.display = 'block'; // Show the loading spinner/text
+        if (submitButton) {
+            submitButton.disabled = true; // Disable the button to prevent multiple submissions
+            submitButton.textContent = 'Identifying...'; // Optional: Change button text
+        }
+
+        // --- Prepare Form Data for Sending ---
+        const formData = new FormData();
+        formData.append('bottle_image', fileInput.files[0]); // 'bottle_image' must match the name Flask expects
+
+        // --- Send Data to Backend API ---
+        try {
+            const response = await fetch('/identify', { // URL of your Flask API endpoint
+                method: 'POST',
+                body: formData,
+            });
+
+            // --- Process Backend Response ---
+            const contentType = response.headers.get("content-type");
+            // Check if the response is valid JSON
+            if (contentType && contentType.indexOf("application/json") !== -1) {
+                const result = await response.json(); // Parse the JSON response body
+
+                if (response.ok && result.success) {
+                    // Call function to display successful results
+                    displayResults(result.data);
+                } else {
+                    // Call function to display error message from backend
+                    displayError(result.error || 'An unknown error occurred while processing the image.');
+                }
+            } else {
+                // Handle cases where the server returns non-JSON (e.g., HTML error page)
+                const errorText = await response.text();
+                console.error("Received non-JSON response:", errorText);
+                displayError(`Server returned an unexpected response (Status: ${response.status}). Please check server logs.`);
+            }
+            
+        } catch (error) {
+            // --- Handle Network Errors ---
+            console.error('Fetch Error:', error);
+            displayError('Failed to connect to the identification server. Please check your network connection or contact support.');
+        } finally {
+            // --- UI Updates: Hide Loading State (always runs) ---
+            if (loadingIndicator) loadingIndicator.style.display = 'none';
+            if (submitButton) {
+                submitButton.disabled = false;
+                submitButton.textContent = 'Identify Bottle';
+            }
+        }
+    });
+}
 
 /**
  * Displays the identified bottle details in the results area.
  * @param {object} data - The bottle details object received from the backend.
  */
 function displayResults(data) {
-    // Clear previous content
-    resultsArea.innerHTML = '';
-
-    // Create the main container for results with Tailwind classes
-    const resultContainer = document.createElement('div');
-    resultContainer.className = 'bg-white dark:bg-gray-800 shadow-lg rounded-lg px-6 py-6 md:px-8'; // Added dark mode support
-
-    // Add Title
-    const title = document.createElement('h2');
-    title.className = 'text-2xl font-semibold mb-4 text-gray-800 dark:text-gray-200 border-b pb-2';
-    title.textContent = 'Match Found!';
-    resultContainer.appendChild(title);
-
-    // Highlighted Name (if available)
-    if (data.name) {
-        const nameHeader = document.createElement('h3');
-        nameHeader.className = 'text-xl font-bold mb-4 text-indigo-700 dark:text-indigo-400';
-        nameHeader.textContent = data.name;
-        resultContainer.appendChild(nameHeader);
+    if (!resultsArea) return;
+    
+    // Add to history if available
+    if (typeof addToHistory === 'function') {
+        addToHistory(data);
     }
 
-    // Create Definition List for details
-    const detailsList = document.createElement('dl');
-    detailsList.className = 'grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 text-sm';
+    // Create results HTML
+    const resultsHTML = `
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg px-6 py-6 md:px-8">
+            <h2 class="text-2xl font-semibold mb-4 text-gray-800 dark:text-gray-200 border-b pb-2">Match Found!</h2>
+            ${data.name ? `<h3 class="text-xl font-bold mb-4 text-indigo-700 dark:text-indigo-400">${data.name}</h3>` : ''}
+            <dl class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 text-sm">
+                ${Object.entries(data)
+                    .filter(([key]) => !key.startsWith('_match_') && key !== 'name')
+                    .map(([key, value]) => {
+                        const formattedKey = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                        let displayValue = value;
+                        
+                        // Format specific fields
+                        if (key === 'avg_msrp' || key === 'fair_price' || key === 'shelf_price') {
+                            displayValue = value ? `$${parseFloat(value).toFixed(2)}` : 'N/A';
+                        } else if (key === 'abv' || key === 'proof') {
+                            displayValue = value ? `${value}%` : 'N/A';
+                        } else if (value === null || value === undefined || value === '') {
+                            displayValue = '<span class="text-gray-500 dark:text-gray-400 italic">N/A</span>';
+                        }
 
-    // Loop through the data object properties
-    for (const [key, value] of Object.entries(data)) {
-        // Skip internal keys we added or keys we don't want displayed directly
-        if (key.startsWith('_match_')) continue;
-        if (key === 'name' && data.name) continue;
+                        return `
+                            <dt class="font-medium text-gray-600 dark:text-gray-400">${formattedKey}</dt>
+                            <dd class="text-gray-900 dark:text-gray-200 mb-2 md:mb-0">${displayValue}</dd>
+                        `;
+                    }).join('')}
+                
+                <!-- Match Confidence details at the end -->
+                <dt class="font-medium text-gray-600 dark:text-gray-400 mt-3 pt-3 border-t md:col-span-1">Match Confidence</dt>
+                <dd class="text-gray-900 dark:text-gray-200 mt-3 pt-3 border-t md:col-span-1">${data._match_good_matches || 'N/A'} good keypoints matched</dd>
+            </dl>
+        </div>
+    `;
 
-        const formattedKey = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-        const displayValue = (value !== null && value !== undefined && value !== '')
-                             ? value
-                             : '<span class="text-gray-500 dark:text-gray-400 italic">N/A</span>';
-
-        const term = document.createElement('dt');
-        term.className = 'font-medium text-gray-600 dark:text-gray-400';
-        term.textContent = formattedKey;
-
-        const description = document.createElement('dd');
-        description.className = 'text-gray-900 dark:text-gray-200 mb-2 md:mb-0';
-        description.innerHTML = displayValue;
-
-        detailsList.appendChild(term);
-        detailsList.appendChild(description);
-    }
-
-    // Add Match Confidence details separately at the end
-    const confidenceTerm = document.createElement('dt');
-    confidenceTerm.className = 'font-medium text-gray-600 dark:text-gray-400 mt-3 pt-3 border-t md:col-span-1';
-    confidenceTerm.textContent = 'Match Confidence';
-
-    const confidenceDesc = document.createElement('dd');
-    confidenceDesc.className = 'text-gray-900 dark:text-gray-200 mt-3 pt-3 border-t md:col-span-1';
-    confidenceDesc.textContent = `${data._match_good_matches || 'N/A'} good keypoints matched`;
-
-    detailsList.appendChild(confidenceTerm);
-    detailsList.appendChild(confidenceDesc);
-
-    // Append the list to the container and the container to the results area
-    resultContainer.appendChild(detailsList);
-    resultsArea.appendChild(resultContainer);
-
-    // Add to history
-    addToHistory(data);
+    resultsArea.innerHTML = resultsHTML;
 }
 
 /**
@@ -334,26 +313,16 @@ function displayResults(data) {
  * @param {string} errorMessage - The error message to display.
  */
 function displayError(errorMessage) {
-     // Clear previous content
-    resultsArea.innerHTML = '';
-
-    // Create error message container with Tailwind classes
-    const errorContainer = document.createElement('div');
-    errorContainer.className = 'bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative shadow'; // Styling for error box
-    errorContainer.setAttribute('role', 'alert');
-
-    const errorTitle = document.createElement('strong');
-    errorTitle.className = 'font-bold mr-2';
-    errorTitle.textContent = 'Identification Failed:';
-    errorContainer.appendChild(errorTitle);
-
-    const errorMessageSpan = document.createElement('span');
-    errorMessageSpan.className = 'block sm:inline'; // Responsive display
-    errorMessageSpan.textContent = errorMessage;
-    errorContainer.appendChild(errorMessageSpan);
-
-    // Append the error message to the results area
-    resultsArea.appendChild(errorContainer);
+    if (!resultsArea) return;
+    
+    const errorHTML = `
+        <div class="bg-red-100 border border-red-400 text-red-700 dark:bg-red-900 dark:border-red-700 dark:text-red-100 px-4 py-3 rounded relative" role="alert">
+            <strong class="font-bold">Error!</strong>
+            <span class="block sm:inline"> ${errorMessage}</span>
+        </div>
+    `;
+    
+    resultsArea.innerHTML = errorHTML;
 }
 
 // Event Listeners
@@ -363,11 +332,12 @@ if (takePhotoButton) takePhotoButton.addEventListener('click', takePhoto);
 
 if (themeToggle) {
     themeToggle.addEventListener('click', (e) => {
-        handleTransition(e, !document.documentElement.classList.contains('dark'));
+        const isDark = !document.documentElement.classList.contains('dark');
+        handleTransition(e, isDark);
     });
 }
 
-if (historyToggle) {
+if (historyToggle && historySidebar) {
     historyToggle.addEventListener('click', toggleHistory);
 }
 
@@ -379,11 +349,24 @@ if (historyOverlay) {
     historyOverlay.addEventListener('click', toggleHistory);
 }
 
-// Initial theme setup
-if (localStorage.theme === 'light') {
-    setTheme(false);
+// Initialize theme based on user preference or system setting
+if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    document.documentElement.classList.add('dark');
+    document.body.classList.add('dark');
 } else {
-    setTheme(true);
+    document.documentElement.classList.remove('dark');
+    document.body.classList.remove('dark');
+}
+
+// Register service worker if available
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/static/js/service-worker.js').then(registration => {
+            console.log('ServiceWorker registration successful');
+        }).catch(err => {
+            console.log('ServiceWorker registration failed: ', err);
+        });
+    });
 }
 
 // Clean up camera when page is unloaded
