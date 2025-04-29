@@ -2,8 +2,8 @@
 
 // --- Get references to DOM elements ---
 const form = document.getElementById('upload-form');
-const resultsArea = document.getElementById('results-area');
-const loadingIndicator = document.getElementById('loading-indicator');
+const resultsArea = document.getElementById('results');
+const loadingIndicator = document.getElementById('loading');
 const fileInput = document.getElementById('bottle-input');
 const submitButton = document.getElementById('submit-button');
 const historyList = document.getElementById('history-list');
@@ -12,7 +12,14 @@ const historySidebar = document.getElementById('history-sidebar');
 const closeHistory = document.getElementById('close-history');
 const historyOverlay = document.getElementById('history-overlay');
 const themeToggle = document.getElementById('theme-toggle');
+const cameraButton = document.getElementById('camera-button');
+const cameraModal = document.getElementById('camera-modal');
+const closeCamera = document.getElementById('close-camera');
+const cameraPreview = document.getElementById('camera-preview');
+const cameraCanvas = document.getElementById('camera-canvas');
+const takePhotoButton = document.getElementById('take-photo');
 let analysisHistory = [];
+let stream = null;
 
 // Theme Management
 function handleTransition(e, isDark) {
@@ -83,6 +90,110 @@ function toggleHistory() {
     document.body.classList.toggle('overflow-hidden');
 }
 
+// Camera functionality
+async function startCamera() {
+    try {
+        // First check if getUserMedia is supported
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            throw new Error('Camera API is not supported in your browser');
+        }
+
+        // Request camera access with options
+        stream = await navigator.mediaDevices.getUserMedia({
+            video: {
+                facingMode: { ideal: 'environment' },
+                width: { ideal: 1920 },
+                height: { ideal: 1080 }
+            }
+        });
+
+        // Set up the video stream
+        cameraPreview.srcObject = stream;
+        await cameraPreview.play(); // Ensure video starts playing
+        cameraModal.classList.remove('hidden');
+        cameraModal.classList.add('flex');
+    } catch (err) {
+        console.error('Error accessing camera:', err);
+        if (err.name === 'NotAllowedError') {
+            alert('Camera access was denied. Please grant camera permissions to use this feature.');
+        } else if (err.name === 'NotFoundError') {
+            alert('No camera found on your device.');
+        } else {
+            alert('Could not access camera: ' + err.message);
+        }
+    }
+}
+
+function stopCamera() {
+    if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+        stream = null;
+    }
+    cameraPreview.srcObject = null;
+    cameraModal.classList.add('hidden');
+    cameraModal.classList.remove('flex');
+}
+
+async function takePhoto() {
+    if (!stream) {
+        console.error('No active camera stream');
+        return;
+    }
+
+    const context = cameraCanvas.getContext('2d');
+    cameraCanvas.width = cameraPreview.videoWidth;
+    cameraCanvas.height = cameraPreview.videoHeight;
+    context.drawImage(cameraPreview, 0, 0, cameraCanvas.width, cameraCanvas.height);
+    
+    // Convert canvas to blob
+    try {
+        const blob = await new Promise((resolve) => {
+            cameraCanvas.toBlob(resolve, 'image/jpeg', 0.95);
+        });
+        
+        const file = new File([blob], "camera-photo.jpg", { type: "image/jpeg" });
+        
+        // Create FormData and append file
+        const formData = new FormData();
+        formData.append('bottle_image', file);
+        
+        // Show loading indicator
+        loadingIndicator.style.display = 'block';
+        submitButton.disabled = true;
+    
+        try {
+            const response = await fetch('/identify', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const contentType = response.headers.get("content-type");
+            if (contentType && contentType.indexOf("application/json") !== -1) {
+                const result = await response.json();
+                if (response.ok && result.success) {
+                    displayResults(result.data);
+                } else {
+                    displayError(result.error || 'An unknown error occurred while processing the image.');
+                }
+            } else {
+                const errorText = await response.text();
+                console.error("Received non-JSON response:", errorText);
+                displayError(`Server returned an unexpected response (Status: ${response.status}). Please check server logs.`);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            displayError('An error occurred while processing the image.');
+        } finally {
+            loadingIndicator.style.display = 'none';
+            submitButton.disabled = false;
+            stopCamera();
+        }
+    } catch (error) {
+        console.error('Error creating blob:', error);
+        displayError('Failed to capture image from camera.');
+    }
+}
+
 // --- Add event listener for form submission ---
 form.addEventListener('submit', async (event) => {
     event.preventDefault(); // Prevent the default form submission behavior (page reload)
@@ -130,7 +241,7 @@ form.addEventListener('submit', async (event) => {
              console.error("Received non-JSON response:", errorText);
              displayError(`Server returned an unexpected response (Status: ${response.status}). Please check server logs.`);
         }
-
+        
     } catch (error) {
         // --- Handle Network Errors ---
         console.error('Fetch Error:', error);
@@ -246,6 +357,10 @@ function displayError(errorMessage) {
 }
 
 // Event Listeners
+if (cameraButton) cameraButton.addEventListener('click', startCamera);
+if (closeCamera) closeCamera.addEventListener('click', stopCamera);
+if (takePhotoButton) takePhotoButton.addEventListener('click', takePhoto);
+
 if (themeToggle) {
     themeToggle.addEventListener('click', (e) => {
         handleTransition(e, !document.documentElement.classList.contains('dark'));
@@ -270,3 +385,6 @@ if (localStorage.theme === 'light') {
 } else {
     setTheme(true);
 }
+
+// Clean up camera when page is unloaded
+window.addEventListener('beforeunload', stopCamera);

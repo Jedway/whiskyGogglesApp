@@ -3,14 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="WhiskyGoggles">
+    <!-- Add camera permission meta tag -->
+    <meta name="permissions-policy" content="camera=*">
+    
     <title>Whisky Goggles Identifier</title>
     
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#1F2937">
     <meta name="description" content="Identify whisky bottles using computer vision">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <meta name="apple-mobile-web-app-title" content="WhiskyGoggles">
     
     <!-- Favicon -->
     <link rel="icon" type="image/png" sizes="196x196" href="{{ url_for('static', filename='icons/favicon-196.png') }}">
@@ -355,18 +358,33 @@
 
         async function startCamera() {
             try {
-                stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { 
-                        facingMode: 'environment',
+                // First check if getUserMedia is supported
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    throw new Error('Camera API is not supported in your browser');
+                }
+
+                // Request camera access with options
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        facingMode: { ideal: 'environment' },
                         width: { ideal: 1920 },
                         height: { ideal: 1080 }
-                    } 
+                    }
                 });
+
+                // Set up the video stream
                 cameraPreview.srcObject = stream;
+                await cameraPreview.play(); // Ensure video starts playing
                 cameraModal.style.display = 'flex';
             } catch (err) {
                 console.error('Error accessing camera:', err);
-                alert('Could not access camera. Please ensure you have granted camera permissions.');
+                if (err.name === 'NotAllowedError') {
+                    alert('Camera access was denied. Please grant camera permissions to use this feature.');
+                } else if (err.name === 'NotFoundError') {
+                    alert('No camera found on your device.');
+                } else {
+                    alert('Could not access camera: ' + err.message);
+                }
             }
         }
 
