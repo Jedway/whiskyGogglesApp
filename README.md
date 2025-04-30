@@ -75,7 +75,7 @@ On mac as a PWA:
 On mobile as a PWA:
 | Dark Mode      | Light Mode     |
 |----------------|----------------|
-| ![](mobiledark.png) | ![](mobilelight.png) |
+| ![](mobiledark.PNG) | ![](mobilelight.PNG) |
 
 ### 👋🏽To the team at Baxus
 Hi there, My name is Jed and I was very enthusiastic to work on this. I've made a roadmap of more features I intend to add and how far I'm willing to push this app so as to push the BAXUS brand and what it stands for even further. Check it out here: <a href="https://gist.github.com/Jedway/4c0a8c7b0a5c4ea48a96996ed6792634" target="_blank" rel="noopener noreferrer">Whisky Goggles app full documentation</a>
