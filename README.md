@@ -8,7 +8,10 @@
 - How it works: 
 OCR
 
-Read more here: <a href="https://whisky-goggles-production.up.railway.app/" target="_blank" rel="noopener noreferrer">Whisky Goggles app full documentation</a>
+Read more here: <a href="https://gist.github.com/Jedway/4c0a8c7b0a5c4ea48a96996ed6792634" target="_blank" rel="noopener noreferrer">Whisky Goggles app full documentation</a>
+
+### Demo and Walkthrough
+- Watch the demo video of how the app works here:
 
 ## Prerequisites
 - Python 3.8+
@@ -17,7 +20,7 @@ Read more here: <a href="https://whisky-goggles-production.up.railway.app/" targ
 
 ## Installation
 
-1. Clone the repository (might take a bit of time because of project size/internet speed, please be patient =) :
+1. Clone the repository (might take a bit of time because of project size/internet speed, please be patient 🙏🏽) :
 ```bash
 git clone https://github.com/Jedway/whiskyGogglesApp.git
 ```
@@ -54,20 +57,28 @@ It will start up a server on port `5000`
 ```bash
 http://127.0.0.1:5000
 ```
-### Demo and Walkthrough
-- Watch the demo video of how the app works here:
 
 ### Minor quirks and features:
 - The live hosted version of the app can be installed as a PWA for a somewhat native feel
 - The app is intuitive to use. You can either upload an image or take a picture using your webcam or the rear camera of your mobile device.
 - Dark/Light mode toggle to set the mood
-- Hamburger menu features an "Analysis History" that lists all the scan results you've gotten for your session 
+- Hamburger menu features an "Analysis History" that lists all the scan results you've gotten for your session
+- When using the camera mode on the live PWA on mobile, please take the picture in landscape so as to properly fit the bottle fully into frame
+- Also, when using the camera mode on the live PWA, only press the "Take Photo" button once then press "X", as it captures and immediately starts analyzing on click
 
 ### Gallery
 On mac as a PWA:
 | Dark Mode      | Light Mode     |
 |----------------|----------------|
 | ![](dark.png) | ![](light.png) |
+
+On mobile as a PWA:
+| Dark Mode      | Light Mode     |
+|----------------|----------------|
+| ![](mobiledark.png) | ![](mobilelight.png) |
+
+### 👋🏽To the team at Baxus
+Hi there, My name is Jed and I was very enthusiastic to work on this. I've made a roadmap of more features I intend to add and how far I'm willing to push this app so as to push the BAXUS brand and what it stands for even further. Check it out here: <a href="https://gist.github.com/Jedway/4c0a8c7b0a5c4ea48a96996ed6792634" target="_blank" rel="noopener noreferrer">Whisky Goggles app full documentation</a>
 
 
 
