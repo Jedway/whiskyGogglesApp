@@ -1,4 +1,4 @@
-![App preview](logo.png)
+![App preview](baxuslogo.png)
 
 # BAXUS WHISKEY GOGGLES BY JED
 
