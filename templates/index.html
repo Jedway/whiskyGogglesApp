@@ -37,7 +37,7 @@
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
-            filter: blur(3px);
+            filter: blur(2px);
         }
 
         .bg-overlay {
@@ -225,7 +225,7 @@
 
             <header class="bg-whisky-primary/80 dark:bg-whisky-darker/80 backdrop-blur-sm text-white p-4 shadow-md">
                 <div class="container mx-auto flex justify-between items-center">
-                    <h1 class="text-2xl font-bold">Whisky Bottle Identifier</h1>
+                    <h1 class="text-2xl font-bold">🥃Whisky Bottle Identifier</h1>
                     <div class="flex items-center gap-4">
                         <button id="theme-toggle" class="theme-toggle" title="Toggle dark mode">
                             <svg id="sun-icon" fill="currentColor" viewBox="0 0 20 20">
@@ -334,7 +334,7 @@
     </div>
 
     <!-- History Sidebar -->
-    <div id="history-sidebar" class="fixed top-0 right-0 h-full w-80 bg-white/90 dark:bg-whisky-dark transform translate-x-full transition-transform duration-300 ease-in-out shadow-lg z-40 flex flex-col">
+    <div id="history-sidebar" class="fixed top-0 right-0 h-full w-80 bg-white/90 dark:bg-whisky-dark transform translate-x-full transition-transform duration-300 ease-in-out shadow-lg z-40 flex flex-col touch-pan-x">
         <!-- Fixed Header -->
         <div class="p-4 border-b border-gray-200 dark:border-whisky-primary/20 bg-white/90 dark:bg-whisky-dark">
             <div class="flex justify-between items-center">
@@ -578,6 +578,50 @@
             // Add to history
             addToHistory(result);
         };
+
+        // Touch Gesture Handling
+        const sidebar = document.getElementById('history-sidebar');
+        let touchStartX = 0;
+        let touchEndX = 0;
+        let initialTransform = 0;
+        const SWIPE_THRESHOLD = 50; // minimum distance for swipe
+        const SWIPE_RESISTANCE = 0.5; // makes the sidebar follow finger at half speed
+
+        sidebar.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+            initialTransform = sidebar.getBoundingClientRect().left;
+            sidebar.style.transition = 'none'; // Disable transition during touch
+        });
+
+        sidebar.addEventListener('touchmove', (e) => {
+            e.preventDefault(); // Prevent scrolling while swiping
+            touchEndX = e.touches[0].clientX;
+            const swipeDistance = touchEndX - touchStartX;
+            
+            // Only allow swipe right (positive distance)
+            if (swipeDistance > 0) {
+                const newPosition = Math.min(swipeDistance * SWIPE_RESISTANCE, 320); // 320px is sidebar width
+                sidebar.style.transform = `translateX(calc(${newPosition}px))`;
+            }
+        });
+
+        sidebar.addEventListener('touchend', () => {
+            sidebar.style.transition = 'transform 0.3s ease-in-out'; // Re-enable transition
+            const swipeDistance = touchEndX - touchStartX;
+
+            if (swipeDistance > SWIPE_THRESHOLD) {
+                // Close the sidebar if swipe distance exceeds threshold
+                toggleHistory();
+            } else {
+                // Reset position if swipe wasn't far enough
+                sidebar.style.transform = 'translateX(0)';
+            }
+        });
+
+        // Prevent default touchmove behavior on sidebar to avoid scrolling issues
+        sidebar.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+        }, { passive: false });
     </script>
 </body>
 </html>

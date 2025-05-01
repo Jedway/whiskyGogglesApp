@@ -540,9 +540,6 @@ video {
 .flex {
   display: flex;
 }
-.table {
-  display: table;
-}
 .grid {
   display: grid;
 }
@@ -602,6 +599,10 @@ video {
 }
 .animate-spin {
   animation: spin 1s linear infinite;
+}
+.touch-pan-x {
+  --tw-pan-x: pan-x;
+  touch-action: var(--tw-pan-x) var(--tw-pan-y) var(--tw-pinch-zoom);
 }
 .appearance-none {
   -webkit-appearance: none;
