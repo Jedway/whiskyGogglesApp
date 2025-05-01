@@ -1,4 +1,4 @@
-const CACHE_NAME = 'whisky-goggles-v1';
+const CACHE_NAME = 'whisky-goggles-v2';
 const urlsToCache = [
     '/',
     '/static/css/output.css',
@@ -14,14 +14,33 @@ self.addEventListener('install', event => {
         caches.open(CACHE_NAME)
             .then(cache => cache.addAll(urlsToCache))
     );
+    // Immediately activate the new service worker
+    self.skipWaiting();
+});
+
+self.addEventListener('activate', event => {
+    event.waitUntil(
+        caches.keys().then(cacheNames => {
+            return Promise.all(
+                cacheNames.map(cacheName => {
+                    if (cacheName !== CACHE_NAME) {
+                        return caches.delete(cacheName);
+                    }
+                })
+            );
+        })
+    );
+    // Immediately take control of all clients
+    event.waitUntil(clients.claim());
 });
 
 self.addEventListener('fetch', event => {
     event.respondWith(
         caches.match(event.request)
             .then(response => {
-                // Return cached version or fetch new
-                return response || fetch(event.request);
+                // Always fetch first, fall back to cache
+                return fetch(event.request)
+                    .catch(() => response);
             })
     );
 }); 

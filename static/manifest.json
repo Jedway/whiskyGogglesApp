@@ -4,8 +4,8 @@
     "description": "Identify whisky bottles using computer vision",
     "start_url": "/",
     "display": "standalone",
-    "background_color": "#1F2937",
-    "theme_color": "#1F2937",
+    "background_color": "#553d25",
+    "theme_color": "#553d25",
     "orientation": "portrait-primary",
     "icons": [
         {

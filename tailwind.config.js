@@ -6,7 +6,17 @@ module.exports = {
   ],
   darkMode: 'class',  // Enable class-based dark mode
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        whisky: {
+          primary: '#553d25',
+          dark: '#272522',
+          accent: '#77542d',
+          light: '#a38b69',
+          darker: '#2b1f13',
+        },
+      },
+    },
   },
   plugins: [],
 }
