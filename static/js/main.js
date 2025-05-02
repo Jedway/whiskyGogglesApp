@@ -18,7 +18,13 @@ const closeCamera = document.getElementById('close-camera');
 const cameraPreview = document.getElementById('camera-preview');
 const cameraCanvas = document.getElementById('camera-canvas');
 const takePhotoButton = document.getElementById('take-photo');
+const clearHistoryButton = document.getElementById('clear-history');
+const bottleDetailsModal = document.getElementById('bottle-details-modal');
+const closeDetailsButton = document.getElementById('close-details');
+const baxusSearchButton = document.getElementById('baxus-search');
+const bottleDetailsContent = document.getElementById('bottle-details-content');
 let analysisHistory = [];
+let currentBottleName = '';
 let stream = null;
 
 // Theme Management
@@ -57,12 +63,13 @@ function setTheme(isDark) {
 
 // History Management Functions
 function addToHistory(data) {
-    // Add the result to history
+    // Add the complete result to history
     analysisHistory.unshift({
         name: data.name || 'Unknown Bottle',
         msrp: data.avg_msrp || 'N/A',
         confidence: data._match_good_matches || 0,
-        timestamp: new Date().toLocaleTimeString()
+        timestamp: new Date().toLocaleTimeString(),
+        fullDetails: data // Store complete data for modal
     });
 
     // Update the history UI
@@ -71,16 +78,74 @@ function addToHistory(data) {
 
 function updateHistoryUI() {
     if (historyList) {
-        historyList.innerHTML = analysisHistory.map(item => `
-            <div class="mb-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg shadow">
-                <div class="font-bold text-gray-800 dark:text-gray-200 mb-2">${item.name}</div>
-                <div class="text-sm text-gray-600 dark:text-gray-400">
-                    <div>Avg MSRP: $${typeof item.msrp === 'number' ? item.msrp.toFixed(2) : item.msrp}</div>
-                    <div>Match Confidence: ${item.confidence} keypoints matched</div>
-                    <div class="text-xs mt-1">${item.timestamp}</div>
+        historyList.innerHTML = analysisHistory.map((item, index) => `
+            <div class="mb-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg shadow cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-200" onclick="showBottleDetails(${index})">
+                <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                        <div class="font-bold text-gray-800 dark:text-gray-200 mb-2">${item.name}</div>
+                        <div class="text-sm text-gray-600 dark:text-gray-400">
+                            <div>Avg MSRP: $${typeof item.msrp === 'number' ? item.msrp.toFixed(2) : item.msrp}</div>
+                            <div>Match Confidence: ${item.confidence} keypoints matched</div>
+                            <div class="text-xs mt-1">${item.timestamp}</div>
+                        </div>
+                    </div>
+                    <svg class="w-5 h-5 text-whisky-primary/60 dark:text-whisky-light/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
                 </div>
             </div>
         `).join('');
+    }
+}
+
+function showBottleDetails(index) {
+    const item = analysisHistory[index];
+    if (!item || !bottleDetailsModal || !bottleDetailsContent) return;
+
+    // Store current bottle name for BAXUS search
+    currentBottleName = item.fullDetails.name || '';
+
+    // Create the content HTML using the same format as displayResults
+    bottleDetailsContent.innerHTML = `
+        <div class="rounded-lg">
+            ${item.fullDetails.name ? `<h3 class="text-xl font-bold mb-4 text-whisky-primary dark:text-whisky-light">${item.fullDetails.name}</h3>` : ''}
+            <dl class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 text-sm">
+                ${Object.entries(item.fullDetails)
+                    .filter(([key]) => !key.startsWith('_match_') && key !== 'name')
+                    .map(([key, value]) => {
+                        const formattedKey = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                        let displayValue = value;
+                        
+                        if (key === 'avg_msrp' || key === 'fair_price' || key === 'shelf_price') {
+                            displayValue = value ? `$${parseFloat(value).toFixed(2)}` : 'N/A';
+                        } else if (key === 'abv' || key === 'proof') {
+                            displayValue = value ? `${value}%` : 'N/A';
+                        } else if (value === null || value === undefined || value === '') {
+                            displayValue = '<span class="text-whisky-primary/50 dark:text-whisky-light/50 italic">N/A</span>';
+                        }
+
+                        return `
+                            <dt class="font-medium text-whisky-primary/80 dark:text-whisky-light/80">${formattedKey}</dt>
+                            <dd class="text-whisky-primary dark:text-whisky-light mb-2 md:mb-0">${displayValue}</dd>
+                        `;
+                    }).join('')}
+                
+                <!-- Match Confidence details at the end -->
+                <dt class="font-medium text-whisky-primary/80 dark:text-whisky-light/80 mt-3 pt-3 border-t border-whisky-primary/20 dark:border-whisky-light/20 md:col-span-1">Match Confidence</dt>
+                <dd class="text-whisky-primary dark:text-whisky-light mt-3 pt-3 border-t border-whisky-primary/20 dark:border-whisky-light/20 md:col-span-1">${item.fullDetails._match_good_matches || 'N/A'} good keypoints matched</dd>
+            </dl>
+        </div>
+    `;
+
+    // Show the modal
+    bottleDetailsModal.classList.remove('hidden');
+    bottleDetailsModal.classList.add('flex');
+}
+
+function closeBottleDetails() {
+    if (bottleDetailsModal) {
+        bottleDetailsModal.classList.add('hidden');
+        bottleDetailsModal.classList.remove('flex');
     }
 }
 
@@ -273,9 +338,9 @@ function displayResults(data) {
 
     // Create results HTML
     const resultsHTML = `
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg px-6 py-6 md:px-8">
-            <h2 class="text-2xl font-semibold mb-4 text-gray-800 dark:text-gray-200 border-b pb-2">Match Found!</h2>
-            ${data.name ? `<h3 class="text-xl font-bold mb-4 text-indigo-700 dark:text-indigo-400">${data.name}</h3>` : ''}
+        <div class="bg-white/80 dark:bg-whisky-dark rounded-lg shadow-lg px-6 py-6 md:px-8">
+            <h2 class="text-2xl font-semibold mb-4 text-whisky-primary dark:text-whisky-light border-b border-whisky-primary/20 dark:border-whisky-light/20 pb-2">Match Found!</h2>
+            ${data.name ? `<h3 class="text-xl font-bold mb-4 text-whisky-primary dark:text-whisky-light">${data.name}</h3>` : ''}
             <dl class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 text-sm">
                 ${Object.entries(data)
                     .filter(([key]) => !key.startsWith('_match_') && key !== 'name')
@@ -289,18 +354,18 @@ function displayResults(data) {
                         } else if (key === 'abv' || key === 'proof') {
                             displayValue = value ? `${value}%` : 'N/A';
                         } else if (value === null || value === undefined || value === '') {
-                            displayValue = '<span class="text-gray-500 dark:text-gray-400 italic">N/A</span>';
+                            displayValue = '<span class="text-whisky-primary/50 dark:text-whisky-light/50 italic">N/A</span>';
                         }
 
                         return `
-                            <dt class="font-medium text-gray-600 dark:text-gray-400">${formattedKey}</dt>
-                            <dd class="text-gray-900 dark:text-gray-200 mb-2 md:mb-0">${displayValue}</dd>
+                            <dt class="font-medium text-whisky-primary/80 dark:text-whisky-light/80">${formattedKey}</dt>
+                            <dd class="text-whisky-primary dark:text-whisky-light mb-2 md:mb-0">${displayValue}</dd>
                         `;
                     }).join('')}
                 
                 <!-- Match Confidence details at the end -->
-                <dt class="font-medium text-gray-600 dark:text-gray-400 mt-3 pt-3 border-t md:col-span-1">Match Confidence</dt>
-                <dd class="text-gray-900 dark:text-gray-200 mt-3 pt-3 border-t md:col-span-1">${data._match_good_matches || 'N/A'} good keypoints matched</dd>
+                <dt class="font-medium text-whisky-primary/80 dark:text-whisky-light/80 mt-3 pt-3 border-t border-whisky-primary/20 dark:border-whisky-light/20 md:col-span-1">Match Confidence</dt>
+                <dd class="text-whisky-primary dark:text-whisky-light mt-3 pt-3 border-t border-whisky-primary/20 dark:border-whisky-light/20 md:col-span-1">${data._match_good_matches || 'N/A'} good keypoints matched</dd>
             </dl>
         </div>
     `;
@@ -325,10 +390,27 @@ function displayError(errorMessage) {
     resultsArea.innerHTML = errorHTML;
 }
 
+// Clear History functionality
+function clearHistory() {
+    analysisHistory = [];
+    updateHistoryUI();
+}
+
+// Add BAXUS search functionality
+function openBaxusSearch() {
+    if (currentBottleName) {
+        const searchQuery = encodeURIComponent(currentBottleName);
+        window.open(`https://www.baxus.co/?q=${searchQuery}`, '_blank');
+    }
+}
+
 // Event Listeners
 if (cameraButton) cameraButton.addEventListener('click', startCamera);
 if (closeCamera) closeCamera.addEventListener('click', stopCamera);
 if (takePhotoButton) takePhotoButton.addEventListener('click', takePhoto);
+if (clearHistoryButton) clearHistoryButton.addEventListener('click', clearHistory);
+if (closeDetailsButton) closeDetailsButton.addEventListener('click', closeBottleDetails);
+if (baxusSearchButton) baxusSearchButton.addEventListener('click', openBaxusSearch);
 
 if (themeToggle) {
     themeToggle.addEventListener('click', (e) => {
@@ -348,6 +430,18 @@ if (closeHistory) {
 if (historyOverlay) {
     historyOverlay.addEventListener('click', toggleHistory);
 }
+
+// Close modal when clicking outside
+if (bottleDetailsModal) {
+    bottleDetailsModal.addEventListener('click', (e) => {
+        if (e.target === bottleDetailsModal) {
+            closeBottleDetails();
+        }
+    });
+}
+
+// Add showBottleDetails to window object so it can be called from inline onclick
+window.showBottleDetails = showBottleDetails;
 
 // Initialize theme based on user preference or system setting
 if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
