@@ -254,16 +254,30 @@
 
                 <div class="bg-white/80 dark:bg-whisky-dark p-6 rounded-lg shadow-lg mb-6">
                     <form id="upload-form" enctype="multipart/form-data">
-                        <label for="bottle-input" class="block text-whisky-primary dark:text-whisky-light text-sm font-bold mb-2">
-                            Upload Whisky Label Image:
-                        </label>
-                        <div class="flex gap-4 mb-4">
-                            <div class="flex-1">
+                        <div class="flex flex-col items-center gap-4 mb-4">
+                            <div class="w-full max-w-xl">
                                 <input type="file" id="bottle-input" name="bottle_image" accept="image/*" required
-                                    class="shadow appearance-none border rounded w-full py-2 px-3 text-whisky-primary dark:text-whisky-light dark:bg-whisky-dark/80 leading-tight focus:outline-none focus:shadow-outline file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-whisky-accent/20 file:text-whisky-primary dark:file:bg-whisky-accent/30 dark:file:text-whisky-light hover:file:bg-whisky-accent/30 dark:hover:file:bg-whisky-accent/40">
+                                    class="hidden">
+                                <div id="upload-area" class="relative border-2 border-dashed border-whisky-primary/20 dark:border-whisky-light/20 rounded-lg p-6 text-center cursor-pointer hover:border-whisky-primary/40 dark:hover:border-whisky-light/40 transition-colors">
+                                    <div id="upload-placeholder" class="flex flex-col items-center">
+                                        <svg class="w-12 h-12 text-whisky-primary/40 dark:text-whisky-light/40 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                        </svg>
+                                        <p class="text-whisky-primary/70 dark:text-whisky-light/70 font-medium">Drop your bottle image here</p>
+                                        <p class="text-whisky-primary/50 dark:text-whisky-light/50 text-sm mt-1">or click to browse</p>
+                                    </div>
+                                    <div id="upload-preview" class="hidden">
+                                        <img id="preview-image" class="max-h-48 mx-auto rounded-lg" alt="Upload preview">
+                                        <button id="remove-image" class="absolute top-2 right-2 bg-rose-600/90 hover:bg-rose-700 text-white rounded-full p-1 shadow-md">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                             <button type="button" id="camera-button" 
-                                    class="flex items-center gap-2 shadow-md hover:shadow-lg active:shadow-sm bg-white/80 dark:bg-whisky-dark/80 border rounded py-2 px-4 text-whisky-primary dark:text-whisky-light leading-tight focus:outline-none focus:shadow-outline hover:bg-white dark:hover:bg-whisky-dark transition-all duration-200 transform active:translate-y-0.5 hover:-translate-y-0.5">
+                                    class="inline-flex items-center gap-2.5 shadow-md hover:shadow-lg active:shadow-sm bg-white/80 dark:bg-whisky-dark/80 border rounded-full py-3 px-8 text-whisky-primary dark:text-whisky-light leading-tight focus:outline-none focus:ring-2 focus:ring-whisky-primary/50 dark:focus:ring-whisky-light/50 hover:bg-white dark:hover:bg-whisky-dark transition-all duration-200 transform active:translate-y-0.5 hover:-translate-y-0.5">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                                           d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z">
@@ -272,7 +286,7 @@
                                           d="M15 13a3 3 0 11-6 0 3 3 0 016 0z">
                                     </path>
                                 </svg>
-                                <span class="font-bold">Use Camera</span>
+                                <span class="font-medium">Use Camera</span>
                             </button>
                         </div>
                         <div class="flex justify-center gap-4">
@@ -313,12 +327,14 @@
                     </div>
                 </div>
 
-                <div id="loading-indicator" class="text-center py-4" style="display: none;">
-                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-whisky-accent dark:text-whisky-light inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    <span class="text-whisky-accent dark:text-whisky-light font-semibold">Identifying... Please Wait</span>
+                <div id="loading-indicator" class="text-center py-8 hidden">
+                    <div class="inline-flex items-center gap-3">
+                        <div class="w-5 h-5 border-2 border-whisky-primary/30 dark:border-whisky-light/30 border-t-whisky-primary dark:border-t-whisky-light rounded-full animate-[spin_0.6s_linear_infinite]"></div>
+                        <div>
+                            <div class="text-whisky-primary dark:text-whisky-light font-medium">Analyzing Image...</div>
+                            <div class="text-sm text-whisky-primary/70 dark:text-whisky-light/70">This may take a few moments</div>
+                        </div>
+                    </div>
                 </div>
 
                 <div id="results-area" class="mt-6 mb-8">
@@ -340,9 +356,6 @@
             <div class="flex justify-between items-center">
                 <h2 class="text-xl font-bold text-whisky-primary dark:text-whisky-light flex items-center gap-2">
                     Analysis History
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
                 </h2>
                 <button id="close-history" class="text-whisky-primary/70 hover:text-whisky-primary dark:text-whisky-light/70 dark:hover:text-whisky-light">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -355,6 +368,14 @@
         <div class="flex-1 overflow-y-auto p-4">
             <div id="history-list" class="space-y-4">
                 <!-- History items will be dynamically added here -->
+            </div>
+            <!-- Empty State -->
+            <div id="history-empty-state" class="hidden flex flex-col items-center justify-center h-full text-center p-6">
+                <svg class="w-16 h-16 text-whisky-primary/30 dark:text-whisky-light/30 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <p class="text-whisky-primary/70 dark:text-whisky-light/70 text-lg font-medium">No Analysis History</p>
+                <p class="text-whisky-primary/50 dark:text-whisky-light/50 text-sm mt-2">Your analyzed bottles will appear here</p>
             </div>
         </div>
         <!-- Fixed Footer -->

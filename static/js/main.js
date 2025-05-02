@@ -23,6 +23,12 @@ const bottleDetailsModal = document.getElementById('bottle-details-modal');
 const closeDetailsButton = document.getElementById('close-details');
 const baxusSearchButton = document.getElementById('baxus-search');
 const bottleDetailsContent = document.getElementById('bottle-details-content');
+const uploadArea = document.getElementById('upload-area');
+const uploadPlaceholder = document.getElementById('upload-placeholder');
+const uploadPreview = document.getElementById('upload-preview');
+const previewImage = document.getElementById('preview-image');
+const removeImageButton = document.getElementById('remove-image');
+const historyEmptyState = document.getElementById('history-empty-state');
 let analysisHistory = [];
 let currentBottleName = '';
 let stream = null;
@@ -78,23 +84,31 @@ function addToHistory(data) {
 
 function updateHistoryUI() {
     if (historyList) {
-        historyList.innerHTML = analysisHistory.map((item, index) => `
-            <div class="mb-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg shadow cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-200" onclick="showBottleDetails(${index})">
-                <div class="flex justify-between items-start">
-                    <div class="flex-1">
-                        <div class="font-bold text-gray-800 dark:text-gray-200 mb-2">${item.name}</div>
-                        <div class="text-sm text-gray-600 dark:text-gray-400">
-                            <div>Avg MSRP: $${typeof item.msrp === 'number' ? item.msrp.toFixed(2) : item.msrp}</div>
-                            <div>Match Confidence: ${item.confidence} keypoints matched</div>
-                            <div class="text-xs mt-1">${item.timestamp}</div>
+        if (analysisHistory.length === 0) {
+            historyList.classList.add('hidden');
+            historyEmptyState.classList.remove('hidden');
+        } else {
+            historyList.classList.remove('hidden');
+            historyEmptyState.classList.add('hidden');
+            
+            historyList.innerHTML = analysisHistory.map((item, index) => `
+                <div class="mb-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg shadow cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-200" onclick="showBottleDetails(${index})">
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <div class="font-bold text-gray-800 dark:text-gray-200 mb-2">${item.name}</div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400">
+                                <div>Avg MSRP: $${typeof item.msrp === 'number' ? item.msrp.toFixed(2) : item.msrp}</div>
+                                <div>Match Confidence: ${item.confidence} keypoints matched</div>
+                                <div class="text-xs mt-1">${item.timestamp}</div>
+                            </div>
                         </div>
+                        <svg class="w-5 h-5 text-whisky-primary/60 dark:text-whisky-light/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
                     </div>
-                    <svg class="w-5 h-5 text-whisky-primary/60 dark:text-whisky-light/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                    </svg>
                 </div>
-            </div>
-        `).join('');
+            `).join('');
+        }
     }
 }
 
@@ -465,3 +479,65 @@ if ('serviceWorker' in navigator) {
 
 // Clean up camera when page is unloaded
 window.addEventListener('beforeunload', stopCamera);
+
+// File Upload Preview
+function handleFileSelect(file) {
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        previewImage.src = e.target.result;
+        uploadPlaceholder.classList.add('hidden');
+        uploadPreview.classList.remove('hidden');
+    };
+    reader.readAsDataURL(file);
+}
+
+function removePreview() {
+    fileInput.value = '';
+    uploadPlaceholder.classList.remove('hidden');
+    uploadPreview.classList.add('hidden');
+    previewImage.src = '';
+}
+
+// Drag and drop functionality
+uploadArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadArea.classList.add('border-whisky-primary', 'dark:border-whisky-light');
+});
+
+uploadArea.addEventListener('dragleave', (e) => {
+    e.preventDefault();
+    uploadArea.classList.remove('border-whisky-primary', 'dark:border-whisky-light');
+});
+
+uploadArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadArea.classList.remove('border-whisky-primary', 'dark:border-whisky-light');
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) {
+        fileInput.files = e.dataTransfer.files;
+        handleFileSelect(file);
+    }
+});
+
+uploadArea.addEventListener('click', () => {
+    fileInput.click();
+});
+
+fileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) {
+        handleFileSelect(file);
+    }
+});
+
+if (removeImageButton) {
+    removeImageButton.addEventListener('click', (e) => {
+        e.stopPropagation();
+        removePreview();
+    });
+}
+
+// Call updateHistoryUI initially to show empty state if needed
+updateHistoryUI();
