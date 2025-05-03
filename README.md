@@ -12,14 +12,14 @@ WhiskyGoggles is a web-based computer vision application that identifies whisky 
 
 > ℹ️ **Info**  
 > Whiskey Goggles App has been updated to v1.5. New look and new features🎊
-> Watch the showcase video here 👉🏽
+> Watch the showcase video here 👉🏽 [v1.5 Showcase Video](https://youtu.be/kKtvLdJE_JQ?si=pqHP1xZL1aFVcpye)
 
 ---
 
 Read more here: <a href="https://gist.github.com/Jedway/4c0a8c7b0a5c4ea48a96996ed6792634" target="_blank" rel="noopener noreferrer">Whisky Goggles app full documentation</a>
 
 ### Demo and Walkthrough
-- Watch the demo video of how the app works here 👉🏽 <a href="https://www.youtube.com/watch?v=UB7IyDRQoRA" target="_blank" rel="noopener noreferrer">Whiskey Goggles App Demo</a>
+- Watch the demo video of how the app works here 👉🏽 <a href="https://youtu.be/kKtvLdJE_JQ?si=pqHP1xZL1aFVcpye" target="_blank" rel="noopener noreferrer">Whiskey Goggles App Demo</a>
 
 ## Prerequisites
 - Python 3.8+
