@@ -12,6 +12,7 @@ WhiskyGoggles is a web-based computer vision application that identifies whisky 
 
 > ℹ️ **Info**  
 > Whiskey Goggles App has been updated to v1.5. New look and new features🎊
+> Watch the showcase video here 👉🏽
 
 ---
 
@@ -65,13 +66,17 @@ It will start up a server on port `5000`
 http://127.0.0.1:5000
 ```
 
+> [!TIP]
+> The app is best experienced on mobile as a PWA (Progressive Web App).
+> Use your browser to "Add To HomePage".
+> Chrome and Safari are recommended
+
 ### Minor quirks and features:
 - The live hosted version of the app can be installed as a PWA for a somewhat native feel
 - The app is intuitive to use. You can either upload an image or take a picture using your webcam or the rear camera of your mobile device.
 - Dark/Light mode toggle to set the mood
 - Hamburger menu features an "Analysis History" that lists all the scan results you've gotten for your session
-- When using the camera mode on the live PWA on mobile, please take the picture in landscape so as to properly fit the bottle fully into frame
-- Also, when using the camera mode on the live PWA, only press the "Take Photo" button once then press "X", as it captures and immediately starts analyzing on click
+- When using the camera mode on the live PWA, only press the "Take Photo" button once then press "X", as it captures and immediately starts analyzing on click
 
 ### Gallery
 On mac as a PWA:
