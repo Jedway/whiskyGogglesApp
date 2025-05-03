@@ -8,6 +8,13 @@
 ### How it works: 
 WhiskyGoggles is a web-based computer vision application that identifies whisky bottles from images. Users can upload photos or use their device's camera to capture bottle images. The app uses OpenCV's ORB feature detection to match bottles against a reference database and provides detailed information about identified bottles. It's built with Python/Flask backend, JavaScript frontend, and uses TailwindCSS for styling.
 
+---
+
+> ℹ️ **Info**  
+> Whiskey Goggles App has been updated to v1.5. New look and new features🎊
+
+---
+
 Read more here: <a href="https://gist.github.com/Jedway/4c0a8c7b0a5c4ea48a96996ed6792634" target="_blank" rel="noopener noreferrer">Whisky Goggles app full documentation</a>
 
 ### Demo and Walkthrough
@@ -70,12 +77,12 @@ http://127.0.0.1:5000
 On mac as a PWA:
 | Dark Mode      | Light Mode     |
 |----------------|----------------|
-| ![](dark.png) | ![](light.png) |
+| ![](dark1.png) | ![](light1.png) |
 
 On mobile as a PWA:
 | Dark Mode      | Light Mode     |
 |----------------|----------------|
-| ![](mobiledark.PNG) | ![](mobilelight.PNG) |
+| ![](mobiledark1.PNG) | ![](mobilelight1.PNG) |
 
 ### 👋🏽To the team at Baxus
 Hi there, My name is Jed and I was very enthusiastic to work on this. I've made a roadmap of more features I intend to add and how far I'm willing to push this app so as to push the BAXUS brand and what it stands for even further. Check it out here: <a href="https://gist.github.com/Jedway/4c0a8c7b0a5c4ea48a96996ed6792634" target="_blank" rel="noopener noreferrer">Whisky Goggles app full documentation</a>
